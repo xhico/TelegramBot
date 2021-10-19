@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
 
-# python3 -m pip install pyTelegramBotAPI picamera --no-cache-dir
+# python3 -m pip install pyTelegramBotAPI python-dotenv picamera --no-cache-dir
 
 import os
 import json
@@ -9,36 +9,19 @@ import telebot
 import requests
 import subprocess
 from picamera import PiCamera
+from dotenv import load_dotenv
+load_dotenv()
 
 
-def getToken():
-    with open("/home/pi/.config/911.json", "r") as f:
-        token = json.load(f)["TELEGRAM"]["TOKEN"]
-    f.close()
-
-    return token
-
-
-def geTransmission():
-    with open("/home/pi/.config/911.json", "r") as f:
-        jsonLoad = json.load(f)
-        user = jsonLoad["TRANSMISSION"]["USER"]
-        pw = jsonLoad["TRANSMISSION"]["PASS"]
-        port = jsonLoad["TRANSMISSION"]["PORT"]
-    f.close()
-
-    return user, pw, port
-
-
-TRANSMISSION_USER, TRANSMISSION_PASS, TRANSMISSION_PORT = geTransmission()
-API_TOKEN = getToken()
-bot = telebot.TeleBot(API_TOKEN)
+TRANSMISSION_USER = os.getenv('TRANSMISSION_USER')
+TRANSMISSION_PASS = os.getenv('TRANSMISSION_PASS')
+TRANSMISSION_PORT = os.getenv('TRANSMISSION_PORT')
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
 camera = PiCamera()
 
 
 # Get Hardware / Software Information
-
-
 def getInfo():
     r = requests.get('http://0.0.0.0:8888/json')
     r = json.loads(r.text)
@@ -115,7 +98,7 @@ def getPic():
 
 def getChatId():
     r = requests.get("https://api.telegram.org/bot" +
-                     API_TOKEN + "/getUpdates")
+                     TELEGRAM_TOKEN + "/getUpdates")
     r = json.loads(r.text)
     chatId = r["result"][0]["message"]["chat"]["id"]
     return chatId
@@ -128,6 +111,7 @@ def send_help(message):
     response += "/pic - Get a Pic" + "\n"
     response += "/tlist - Torrent List" + "\n"
     response += "/tstart - Torrent Start All" + "\n"
+    response += "/tstop - Torrent Stop All" + "\n"
     bot.reply_to(message, response)
 
 
@@ -147,37 +131,41 @@ def send_pic(message):
 
 @bot.message_handler(commands=['tlist'])
 def send_torrent_list(message):
-    response = subprocess.getoutput(
-        "transmission-remote 127.0.0.1:" + TRANSMISSION_PORT + " --auth=" + TRANSMISSION_USER + ":" + TRANSMISSION_PASS + " --list")
-    cmd, torrents = [], []
-    for entry in response.split("\n")[:-1]:
-        for section in entry.replace("  ", "|").split("|"):
-            if section:
-                cmd.append(section.replace(" ", " ").lstrip().rstrip())
-    for i in range(0, len(cmd), 9):
-        torrents.append(cmd[i:i + 9])
 
-    # print(response)
-    response = ""
-    for i in range(1, len(torrents), 1):
-        for j in range(0, len(torrents[0]), 1):
-            response += torrents[0][j] + " - " + torrents[i][j] + "\n"
-        response += "\n"
+    response = subprocess.getoutput("transmission-remote 127.0.0.1:" + TRANSMISSION_PORT +
+                                    " --auth=" + TRANSMISSION_USER + ":" + TRANSMISSION_PASS + " --list")
+
+    if len(response.split("\n")) >= 3:
+        cmd, torrents = [], []
+        for entry in response.split("\n")[:-1]:
+            for section in entry.replace("  ", "|").split("|"):
+                if section:
+                    cmd.append(section.replace(" ", " ").lstrip().rstrip())
+        for i in range(0, len(cmd), 9):
+            torrents.append(cmd[i:i + 9])
+
+        response = ""
+        for i in range(1, len(torrents), 1):
+            for j in range(0, len(torrents[0]), 1):
+                response += torrents[0][j] + " - " + torrents[i][j] + "\n"
+            response += "\n"
+    else:
+        response = "No Torrents"
 
     bot.reply_to(message, response)
 
 
 @bot.message_handler(commands=['tstart'])
 def send_torrent_start(message):
-    response = subprocess.getoutput(
-        "transmission-remote 127.0.0.1:" + TRANSMISSION_PORT + " --auth=" + TRANSMISSION_USER + ":" + TRANSMISSION_PASS + " --torrent all --start")
+    response = subprocess.getoutput("transmission-remote 127.0.0.1:" + TRANSMISSION_PORT +
+                                    " --auth=" + TRANSMISSION_USER + ":" + TRANSMISSION_PASS + " --torrent all --start")
     bot.reply_to(message, response)
 
 
 @bot.message_handler(commands=['tstop'])
 def send_torrent_stop(message):
-    response = subprocess.getoutput(
-        "transmission-remote 127.0.0.1:" + TRANSMISSION_PORT + " --auth=" + TRANSMISSION_USER + ":" + TRANSMISSION_PASS + " --torrent all --stop")
+    response = subprocess.getoutput("transmission-remote 127.0.0.1:" + TRANSMISSION_PORT +
+                                    " --auth=" + TRANSMISSION_USER + ":" + TRANSMISSION_PASS + " --torrent all --stop")
     bot.reply_to(message, response)
 
 
