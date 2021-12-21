@@ -9,14 +9,19 @@ import telebot
 import requests
 import subprocess
 from picamera import PiCamera
-from dotenv import load_dotenv
-load_dotenv()
 
 
-TRANSMISSION_USER = os.getenv('TRANSMISSION_USER')
-TRANSMISSION_PASS = os.getenv('TRANSMISSION_PASS')
-TRANSMISSION_PORT = os.getenv('TRANSMISSION_PORT')
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+def get911(key):
+    f = open('/home/pi/.911')
+    data = json.load(f)
+    f.close()
+    return data[key]
+
+
+TRANSMISSION_USER = get911('TRANSMISSION_USER')
+TRANSMISSION_PASS = get911('TRANSMISSION_PASS')
+TRANSMISSION_PORT = get911('TRANSMISSION_PORT')
+TELEGRAM_TOKEN = get911('TELEGRAM_TOKEN')
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 camera = PiCamera()
 
