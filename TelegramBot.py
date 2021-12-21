@@ -101,14 +101,6 @@ def getPic():
     return imgFilePath
 
 
-def getChatId():
-    r = requests.get("https://api.telegram.org/bot" +
-                     TELEGRAM_TOKEN + "/getUpdates")
-    r = json.loads(r.text)
-    chatId = r["result"][0]["message"]["chat"]["id"]
-    return chatId
-
-
 @bot.message_handler(commands=['help'])
 def send_help(message):
     response = "Available Cmds" + "\n\n"
