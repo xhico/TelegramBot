@@ -3,11 +3,11 @@
 
 # python3 -m pip install pyTelegramBotAPI python-dotenv picamera --no-cache-dir
 
-import os
 import json
-import telebot
-import requests
 import subprocess
+import os
+import requests
+import telebot
 from picamera import PiCamera
 
 
@@ -41,16 +41,16 @@ def getInfo():
     if r["Temperature"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
         infos += "Temperature: " + \
-            str(r["Temperature"]["Temperature"]) + " ºC" + "\n"
+                 str(r["Temperature"]["Temperature"]) + " ºC" + "\n"
 
     if r["AmbientHumidityTemperature"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
         infos += "Ambient" + "\n"
         infos += "Date: " + str(r["AmbientHumidityTemperature"]["Date"]) + "\n"
         infos += "Humidity: " + \
-            str(r["AmbientHumidityTemperature"]["Humidity"]) + " %" + "\n"
+                 str(r["AmbientHumidityTemperature"]["Humidity"]) + " %" + "\n"
         infos += "Temperature: " + \
-            str(r["AmbientHumidityTemperature"]["Temperature"]) + " ºC" + "\n"
+                 str(r["AmbientHumidityTemperature"]["Temperature"]) + " ºC" + "\n"
 
     if r["CPU"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
@@ -67,17 +67,22 @@ def getInfo():
         infos += "\n" + "-----------------------------------------" + "\n"
         infos += "SDCard" + "\n"
         infos += "Percentage: " + \
-            str(r["Disks"]["SDCard"]["Percentage"]) + " %" + "\n"
+                 str(r["Disks"]["SDCard"]["Percentage"]) + " %" + "\n"
 
     if r["Disks"]["918"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
         infos += "918" + "\n"
         infos += "Percentage: " + \
-            str(r["Disks"]["918"]["Percentage"]) + " %" + "\n"
+                 str(r["Disks"]["918"]["Percentage"]) + " %" + "\n"
 
     if r["Network"]["Info"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
         infos += "Hostname: " + str(r["Network"]["Info"]["Hostname"]) + "\n"
+
+    if r["Network"]["IPAddress"]["hasInfo"] == "Yes":
+        infos += "\n" + "-----------------------------------------" + "\n"
+        infos += "Internal IP: " + str(r["Network"]["IPAddress"]["Internal"]) + "\n"
+        infos += "External IP: " + str(r["Network"]["IPAddress"]["External"]) + "\n"
 
     if r["Network"]["Wired"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
@@ -124,11 +129,11 @@ def send_pic(message):
     photo = open(imgFilePath, 'rb')
     bot.send_photo(message.chat.id, photo)
     photo.close()
+    os.remove(imgFilePath)
 
 
 @bot.message_handler(commands=['tlist'])
 def send_torrent_list(message):
-
     response = subprocess.getoutput("transmission-remote 127.0.0.1:" + TRANSMISSION_PORT +
                                     " --auth=" + TRANSMISSION_USER + ":" + TRANSMISSION_PASS + " --list")
 
