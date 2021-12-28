@@ -4,8 +4,9 @@
 # python3 -m pip install pyTelegramBotAPI python-dotenv picamera --no-cache-dir
 
 import json
-import subprocess
 import os
+import subprocess
+
 import requests
 import telebot
 from picamera import PiCamera
@@ -81,8 +82,8 @@ def getInfo():
 
     if r["Network"]["IPAddress"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
-        infos += "Internal IP: " + str(r["Network"]["IPAddress"]["Internal"]) + "\n"
-        infos += "External IP: " + str(r["Network"]["IPAddress"]["External"]) + "\n"
+        infos += "Internal IP: " + str(r["Network"]["IPAddress"]["Internal"]).replace(".", " ") + "\n"
+        infos += "External IP: " + str(r["Network"]["IPAddress"]["External"]).replace(".", " ") + "\n"
 
     if r["Network"]["Wired"]["hasInfo"] == "Yes":
         infos += "\n" + "-----------------------------------------" + "\n"
