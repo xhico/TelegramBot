@@ -13,9 +13,8 @@ from picamera import PiCamera
 
 
 def get911(key):
-    f = open('/home/pi/.911')
-    data = json.load(f)
-    f.close()
+    with open('/home/pi/.911') as f:
+        data = json.load(f)
     return data[key]
 
 
