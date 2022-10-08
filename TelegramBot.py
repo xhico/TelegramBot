@@ -6,16 +6,10 @@
 import json
 import os
 import subprocess
-
 import requests
 import telebot
 from picamera import PiCamera
-
-
-def get911(key):
-    with open('/home/pi/.911') as f:
-        data = json.load(f)
-    return data[key]
+from Misc import get911
 
 
 TRANSMISSION_USER = get911('TRANSMISSION_USER')
