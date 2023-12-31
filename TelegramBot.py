@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
 
-# python3 -m pip install pyTelegramBotAPI python-dotenv picamera --no-cache-dir
-
 import json
 import os
 import subprocess
@@ -10,7 +8,6 @@ import requests
 import telebot
 from picamera import PiCamera
 from Misc import get911
-
 
 TRANSMISSION_USER = get911('TRANSMISSION_USER')
 TRANSMISSION_PASS = get911('TRANSMISSION_PASS')
